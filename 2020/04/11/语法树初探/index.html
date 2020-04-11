@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>语法树初探 | lb的博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><meta name="generator" content="Hexo 4.2.0"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">语法树初探</h1><a id="logo" href="/.">lb的博客</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">语法树初探</h1><div class="post-meta">Apr 11, 2020<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><p>最近公司公布了最新的后端代码规范，组内开会的时候讨论了下怎么样用自动化的方法去筛选不规范的代码，当时就想到了阿里开源的IDEA代码规范检测插件。那VS应该也支持这样的插件，能不能自己实现一套符合自定义规范的VS插件呢？周末研究了一下，实现了一个功能很小的示例。首先得理解这几个概念：</p>
+<h4 id="语法树"><a href="#语法树" class="headerlink" title="语法树"></a>语法树</h4><blockquote>
+<p>The syntax tree is a fundamental data structure exposed by the compiler APIs. These trees represent the lexical and syntactic structure of source code. </p>
+</blockquote>
+<ul>
+<li>用途： <ol>
+<li>支持 IDE、插件、代码分析重构工具 等查看和处理用户项目中源代码的语法结构；</li>
+<li>通过创建或操作语法树，使 IDE 等工具能够创建（自动生成）、修改（自动重构）源代码。</li>
+</ol>
+</li>
+<li>特性：<ol>
+<li>语法树会完全保留源代码的所有信息。任何一个声明、方法甚至空格、注释都能在语法树中找到对应的信息；</li>
+<li>可从语法树中分析出精确的文本。对于任何一个语法节点（syntax node），都可以获取以该节点为根的子树的文本表示形式。所以语法树可以用来构造和编辑源文本；</li>
+<li>语法树是线程安全的。</li>
+</ol>
+</li>
+<li>组成：<br>语法结构<ul>
+<li>Syntax nodes（Microsoft.CodeAnalysis.SyntaxNode，语法节点），表示声明、语句、子句和表达式等语法构造。</li>
+<li>Syntax tokens（SyntaxToken，语法标记，值类型），表示关键字、标识符、文本和标点。</li>
+<li>Syntax trivia（Microsoft.CodeAnalysis.SyntaxTrivia，语法琐碎内容，值类型)，表示空格、注释和预处理器指令。</li>
+</ul>
+</li>
+</ul>
+<h4 id="语义模型"><a href="#语义模型" class="headerlink" title="语义模型"></a>语义模型</h4><ul>
+<li>官方文档阐述的比较详细，并举了很多例子，个人理解为相当于开发时用到的反射</li>
+</ul>
+<h4 id="语法模型和语义模型的区别（个人理解）"><a href="#语法模型和语义模型的区别（个人理解）" class="headerlink" title="语法模型和语义模型的区别（个人理解）"></a>语法模型和语义模型的区别（个人理解）</h4><ul>
+<li>什么叫语法？就是句子、短语中的单词结构的组成规律的总结，它不关心单词、语句真正的含义。 而语义恰恰相反，它关心的是这句话的含义是否正确。比如 <code>int a = 1;</code>和<code>string a = 1;</code> 都符合语法，但第二句明显不符合语义。</li>
+</ul>
+<h4 id="语法树可视化工具"><a href="#语法树可视化工具" class="headerlink" title="语法树可视化工具"></a>语法树可视化工具</h4><ul>
+<li>借助vs的工具，我们能快速定位到某个语法节点并预览整个文件的语法树结构。详见 <a href="https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/syntax-visualizer?tabs=csharp" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/syntax-visualizer?tabs=csharp</a></li>
+</ul>
+<h4 id="创建一个代码分析器及修补程序"><a href="#创建一个代码分析器及修补程序" class="headerlink" title="创建一个代码分析器及修补程序"></a>创建一个代码分析器及修补程序</h4><ol>
+<li>在vs中新建一个 <code>Analyzer with Code Fix</code> 项目 CodeAnalyzerDemo，这个项目自带一个示例，判断某个变量是否可以被声明为const并给出提示及修补方案。调试这个项目是一个理解语法树很好的途径。</li>
+<li>在开始写代码分析器之前，建议先阅读官方文档，这里就不做搬运了。 <a href="https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/tutorials/how-to-write-csharp-analyzer-code-fix" target="_blank" rel="noopener">Tutorial: Write your first analyzer and code fix</a></li>
+<li>总的来说会分两步：<ul>
+<li>检测触发提示的操作。每次用户对代码进行修改之后，VS需要知道在什么情况下，以什么形式给用户提示。我们需要在<code>CodeAnalyzerDemoAnalyzer</code>类（继承自<code>DiagnosticAnalyzer</code>）中的<code>Initialize</code>方法里注册上我们的检测逻辑：<code>context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.LocalDeclarationStatement);</code> <code>AnalyzeNode</code>就是具体的检测逻辑。</li>
+<li>按照定义的方式修补代码。当用户选择修补程序后，VS会根据你写的逻辑来重构用户代码。我们在<code>CodeAnalyzerDemoCodeFixProvider</code>类（继承自<code>CodeFixProvider</code>）中的 <code>RegisterCodeFixesAsync</code>方法里注册我们的修补逻辑：<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">context</span>.RegisterCodeFix(</span><br><span class="line">    CodeAction.Create(</span><br><span class="line">        <span class="built_in">title</span>: <span class="built_in">title</span>,</span><br><span class="line">        createChangedDocument: c =&gt; MakeConstAsync(<span class="built_in">context</span>.Document, declaration, c),</span><br><span class="line">        equivalenceKey: <span class="built_in">title</span>),</span><br><span class="line">    diagnostic);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">4. 现在我想实现一个命名规范的约束：&#96;&#96;&#96;使用Pascal命名方式对类进行命名&#96;&#96;&#96;。</span><br><span class="line">    - 首先需要修改注册的语法类型（写的时候可能会对选择什么语法类型感到困惑，再次安利VS的语法树可视化工具）：</span><br><span class="line">    &#96;&#96;&#96;context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.ClassDeclaration);</span><br></pre></td></tr></table></figure></li>
+<li>接下去就是编写检测规则了：<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">private void AnalyzeNode(SyntaxNodeAnalysisContext context)</span><br><span class="line">&#123;</span><br><span class="line">    var pascalPattern = @<span class="string">"^I?([A-Z][a-z0-9]+)+(([A-Z])|(DO|DTO|VO|DAO|BO|DAOImpl|AO|PO))?$"</span>;</span><br><span class="line">    var classDeclaration = (ClassDeclarationSyntax) context.<span class="keyword">Node</span><span class="title">;</span></span><br><span class="line"><span class="title">    string</span> identifierValue = classDeclaration.Identifier.ValueText;</span><br><span class="line">    if (Regex.IsMatch(identifierValue, pascalPattern))</span><br><span class="line">    &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    context.ReportDiagnostic(Diagnostic.Create(<span class="keyword">Rule</span>, context.<span class="keyword">Node</span>.<span class="title">GetLocation</span>()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>在<code>Resource.resx</code>文件中修改对应的提示语：<code>【强制】使用Pascal(单词首字母大写)命名方式对命名空间、类型、枚举类型、枚举值、事件、属性、方法、常量进行命名。</code></li>
+</ul>
+</li>
+<li>按F5调试<code>CodeAnalyzerDemo.Vsix</code>项目，VS会打开一个新的VS，我们就可以在这个新打开的VS中调试功能。我们用被调试的VS打开了一个控制台项目，可以看到当类名符合要求时不会提示任何信息。新增一个类，将类名首字母改成小写，VS给出相应提示。<br><img src="http://images.laiyintools.com/VSAnalyzer.png" alt="VS截图"></li>
+<li>编写修补逻辑（待补充</li>
+</ol>
+</div><div class="tags"></div><div class="post-nav"><a class="next" href="/2019/12/22/hello-world/">Hello World</a></div><div id="container"></div><link rel="stylesheet" type="text/css" href="//unpkg.com/gitalk/dist/gitalk.css?v=0.0.0"><script type="text/javascript" src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js?v=0.0.0"></script><script type="text/javascript" src="//unpkg.com/gitalk/dist/gitalk.min.js?v=0.0.0"></script><script>var gitalk = new Gitalk({
+  clientID: '87950c6e651185db9b60',
+  clientSecret: '900e02291391911310415cd76965d437c89a394f',
+  repo: 'liangbin65536.github.io',
+  owner: 'liangbin65536',
+  admin: ['liangbin65536'],
+  id: md5(location.pathname),
+  distractionFreeMode: false
+})
+gitalk.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/04/11/%E8%AF%AD%E6%B3%95%E6%A0%91%E5%88%9D%E6%8E%A2/">语法树初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/22/hello-world/">Hello World</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="https://www.google.com/" title="暂无" target="_blank">暂无</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2020 <a href="/." rel="nofollow">lb的博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
